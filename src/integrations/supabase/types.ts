@@ -14,7 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cases: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      custody_log: {
+        Row: {
+          action: string
+          actor: string | null
+          actor_email: string
+          case_id: string
+          created_at: string
+          evidence_id: string
+          hash_snapshot: string | null
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          actor_email: string
+          case_id: string
+          created_at?: string
+          evidence_id: string
+          hash_snapshot?: string | null
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          actor_email?: string
+          case_id?: string
+          created_at?: string
+          evidence_id?: string
+          hash_snapshot?: string | null
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custody_log_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custody_log_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "evidence"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evidence: {
+        Row: {
+          batch_id: string | null
+          case_id: string
+          chain_hash: string
+          created_at: string
+          file_hash: string
+          filename: string
+          id: string
+          merkle_proof: Json | null
+          mime_type: string
+          prev_chain_hash: string | null
+          size_bytes: number
+          status: string
+          storage_path: string
+          uploaded_by: string | null
+          uploaded_by_email: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          case_id: string
+          chain_hash: string
+          created_at?: string
+          file_hash: string
+          filename: string
+          id?: string
+          merkle_proof?: Json | null
+          mime_type?: string
+          prev_chain_hash?: string | null
+          size_bytes?: number
+          status?: string
+          storage_path: string
+          uploaded_by?: string | null
+          uploaded_by_email?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          case_id?: string
+          chain_hash?: string
+          created_at?: string
+          file_hash?: string
+          filename?: string
+          id?: string
+          merkle_proof?: Json | null
+          mime_type?: string
+          prev_chain_hash?: string | null
+          size_bytes?: number
+          status?: string
+          storage_path?: string
+          uploaded_by?: string | null
+          uploaded_by_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "merkle_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merkle_batches: {
+        Row: {
+          case_id: string
+          evidence_count: number
+          id: string
+          public_key: string
+          root_hash: string
+          sealed_at: string
+          sealed_by: string | null
+          sealed_by_email: string | null
+          signature: string
+        }
+        Insert: {
+          case_id: string
+          evidence_count: number
+          id?: string
+          public_key: string
+          root_hash: string
+          sealed_at?: string
+          sealed_by?: string | null
+          sealed_by_email?: string | null
+          signature: string
+        }
+        Update: {
+          case_id?: string
+          evidence_count?: number
+          id?: string
+          public_key?: string
+          root_hash?: string
+          sealed_at?: string
+          sealed_by?: string | null
+          sealed_by_email?: string | null
+          signature?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merkle_batches_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
