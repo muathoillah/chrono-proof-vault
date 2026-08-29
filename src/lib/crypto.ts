@@ -48,49 +48,9 @@ async function hashPair(a: string, b: string): Promise<string> {
   return sha256Hex(a + b);
 }
 
+// Builds a Merkle tree from leaf hashes; odd nodes are duplicated.
+// Returns the root, a proof path per leaf, and every layer for visualization.
 export async function buildMerkleTree(leaves: string[]): Promise<MerkleTreeResult> {
-  if (leaves.length === 0) return { root: "", proofs: [], layers: [] };
-  const layers: string[][] = [leaves.slice()];
-  const proofs: MerkleProofStep[][] = leaves.map(() => []);
-  let current = leaves.slice();
-  while (current.length > 1) {
-    const next: string[] = [];
-    for (let i = 0; i < current.length; i += 2) {
-      const left = current[i];
-      const right = i + 1 < current.length ? current[i + 1] : current[i];
-      next.push(await hashPair(left, right));
-    }
-    for (let i = 0; i < current.length; i++) {
-      const sibIdx = i % 2 === 0 ? i + 1 : i - 1;
-      const sibling = sibIdx < current.length ? current[sibIdx] : current[i];
-      proofs[leafIndexAtLayer(leaves.length, layers, i)].push({
-        hash: sibling,
-        position: i % 2 === 0 ? "right" : "left",
-      });
-    }
-    layers.push(next);
-    current = next;
-  }
-  return { root: current[0], proofs, layers };
-}
-
-// Map an index in the current layer back to the originating leaf index.
-// Only valid while we track leaves contiguously — we store per-leaf proofs by
-// recomputing per level, so this helper resolves the leaf offset.
-function leafIndexAtLayer(_leafCount: number, _layers: string[][], _idx: number): number {
-  return _leafIndexMap[_layers.length - 1][_idx];
-}
-
-let _leafIndexMap: number[][] = [];
-
-export async function buildMerkleTreeTracked(leaves: string[]): Promise<MerkleTreeResult> {
-  _leafIndexMap = [leaves.map((_, i) => i)];
-  const result = await buildMerkleTreeInternal(leaves);
-  _leafIndexMap = [];
-  return result;
-}
-
-async function buildMerkleTreeInternal(leaves: string[]): Promise<MerkleTreeResult> {
   if (leaves.length === 0) return { root: "", proofs: [], layers: [] };
   const layers: string[][] = [leaves.slice()];
   const proofs: MerkleProofStep[][] = leaves.map(() => []);
@@ -100,15 +60,15 @@ async function buildMerkleTreeInternal(leaves: string[]): Promise<MerkleTreeResu
     const next: string[] = [];
     const nextMap: number[] = [];
     for (let i = 0; i < current.length; i += 2) {
-      const left = current[i];
-      const right = i + 1 < current.length ? current[i + 1] : current[i];
+      const left = current[i]!;
+      const right = i + 1 < current.length ? current[i + 1]! : left;
       next.push(await hashPair(left, right));
-      nextMap.push(indexMap[i]);
+      nextMap.push(indexMap[i]!);
     }
     for (let i = 0; i < current.length; i++) {
       const sibIdx = i % 2 === 0 ? i + 1 : i - 1;
-      const sibling = sibIdx < current.length ? current[sibIdx] : current[i];
-      proofs[indexMap[i]].push({
+      const sibling = sibIdx < current.length ? current[sibIdx]! : current[i]!;
+      proofs[indexMap[i]!]!.push({
         hash: sibling,
         position: i % 2 === 0 ? "right" : "left",
       });
@@ -117,7 +77,7 @@ async function buildMerkleTreeInternal(leaves: string[]): Promise<MerkleTreeResu
     current = next;
     indexMap = nextMap;
   }
-  return { root: current[0], proofs, layers };
+  return { root: current[0]!, proofs, layers };
 }
 
 export async function verifyMerkleProof(
