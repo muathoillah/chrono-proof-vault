@@ -11,6 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedCasesIdRouteImport } from './routes/_authenticated/cases.$id'
+import { Route as AuthenticatedCustodyIdRouteImport } from './routes/_authenticated/custody.$id'
+import { Route as AuthenticatedVerifyIdRouteImport } from './routes/_authenticated/verify.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -21,30 +25,67 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCasesIdRoute = AuthenticatedCasesIdRouteImport.update({
+  id: '/cases/$id',
+  path: '/cases/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCustodyIdRoute = AuthenticatedCustodyIdRouteImport.update({
+  id: '/custody/$id',
+  path: '/custody/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVerifyIdRoute = AuthenticatedVerifyIdRouteImport.update({
+  id: '/verify/$id',
+  path: '/verify/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedRouteRoute
+  '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/cases/$id': typeof AuthenticatedCasesIdRoute
+  '/custody/$id': typeof AuthenticatedCustodyIdRoute
+  '/verify/$id': typeof AuthenticatedVerifyIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthenticatedRouteRoute
   '/auth': typeof AuthRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/cases/$id': typeof AuthenticatedCasesIdRoute
+  '/custody/$id': typeof AuthenticatedCustodyIdRoute
+  '/verify/$id': typeof AuthenticatedVerifyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_authenticated': typeof AuthenticatedRouteRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/cases/$id': typeof AuthenticatedCasesIdRoute
+  '/_authenticated/custody/$id': typeof AuthenticatedCustodyIdRoute
+  '/_authenticated/verify/$id': typeof AuthenticatedVerifyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths: '/' | '/auth' | '/cases/$id' | '/custody/$id' | '/verify/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/_authenticated' | '/auth'
+  to: '/auth' | '/' | '/cases/$id' | '/custody/$id' | '/verify/$id'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/'
+    | '/_authenticated/cases/$id'
+    | '/_authenticated/custody/$id'
+    | '/_authenticated/verify/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
 }
 
@@ -64,11 +105,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cases/$id': {
+      id: '/_authenticated/cases/$id'
+      path: '/cases/$id'
+      fullPath: '/cases/$id'
+      preLoaderRoute: typeof AuthenticatedCasesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custody/$id': {
+      id: '/_authenticated/custody/$id'
+      path: '/custody/$id'
+      fullPath: '/custody/$id'
+      preLoaderRoute: typeof AuthenticatedCustodyIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/verify/$id': {
+      id: '/_authenticated/verify/$id'
+      path: '/verify/$id'
+      fullPath: '/verify/$id'
+      preLoaderRoute: typeof AuthenticatedVerifyIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCasesIdRoute: typeof AuthenticatedCasesIdRoute
+  AuthenticatedCustodyIdRoute: typeof AuthenticatedCustodyIdRoute
+  AuthenticatedVerifyIdRoute: typeof AuthenticatedVerifyIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCasesIdRoute: AuthenticatedCasesIdRoute,
+  AuthenticatedCustodyIdRoute: AuthenticatedCustodyIdRoute,
+  AuthenticatedVerifyIdRoute: AuthenticatedVerifyIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  AuthenticatedRouteRoute: AuthenticatedRouteRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
