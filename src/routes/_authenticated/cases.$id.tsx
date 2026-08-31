@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Upload, Lock, Download, ShieldSearch, History, Bug } from "lucide-react";
+import { Upload, Lock, Download, ShieldCheck, History, Bug } from "lucide-react";
 import { getCaseDetail, uploadEvidence, sealBatch, exportProof, simulateTamper } from "@/lib/evidence.functions";
 import { AppShell, Hash, StatusBadge } from "@/components/forensic";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,10 @@ function CaseDetailPage() {
   async function onUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const file = fileInput.current?.files?.[0];
-    if (!file) return toast.error("Pilih file terlebih dahulu");
+    if (!file) {
+      toast.error("Pilih file terlebih dahulu");
+      return;
+    }
     const fd = new FormData();
     fd.append("caseId", id);
     fd.append("file", file);
@@ -170,7 +173,7 @@ function CaseDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="secondary">
                     <Link to="/verify/$id" params={{ id: ev.id }}>
-                      <ShieldSearch className="mr-1 h-3.5 w-3.5" /> Verifikasi
+                      <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verifikasi
                     </Link>
                   </Button>
                   <Button asChild size="sm" variant="ghost">
